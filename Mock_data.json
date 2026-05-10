@@ -1,0 +1,12 @@
+[
+  {"transaction_id": "TRX-001", "date": "2026-01-15", "department": "Marketing", "category": "Advertising", "amount": 12000.00, "vendor": "Google Ads", "status": "Approved"},
+  {"transaction_id": "TRX-002", "date": "2026-01-20", "department": "IT", "category": "Software", "amount": 4500.00, "vendor": "AWS", "status": "Approved"},
+  {"transaction_id": "TRX-003", "date": "2026-02-05", "department": "Sales", "category": "Travel", "amount": 3200.00, "vendor": "Delta Airlines", "status": "Approved"},
+  {"transaction_id": "TRX-004", "date": "2026-02-18", "department": "Marketing", "category": "Software", "amount": 1500.00, "vendor": "HubSpot", "status": "Approved"},
+  {"transaction_id": "TRX-005", "date": "2026-03-10", "department": "HR", "category": "Events", "amount": 5000.00, "vendor": "Local Catering", "status": "Approved"},
+  {"transaction_id": "TRX-006", "date": "2026-03-22", "department": "IT", "category": "Hardware", "amount": 8500.00, "vendor": "Dell", "status": "Pending"},
+  {"transaction_id": "TRX-007", "date": "2026-04-05", "department": "Sales", "category": "Meals", "amount": 800.00, "vendor": "Steakhouse", "status": "Approved"},
+  {"transaction_id": "TRX-008", "date": "2026-04-12", "department": "Marketing", "category": "Advertising", "amount": 15000.00, "vendor": "LinkedIn Ads", "status": "Approved"},
+  {"transaction_id": "TRX-009", "date": "2026-05-02", "department": "IT", "category": "Software", "amount": 1200.00, "vendor": "Atlassian", "status": "Approved"},
+  {"transaction_id": "TRX-010", "date": "2026-05-08", "department": "HR", "category": "Software", "amount": 900.00, "vendor": "Workday", "status": "Approved"}
+]
