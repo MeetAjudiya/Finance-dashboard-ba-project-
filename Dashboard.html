@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corporate Financial Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #f4f7f6;
+            --surface: #ffffff;
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --danger: #e74c3c;
+            --success: #2ecc71;
+            --text: #333333;
+            --muted: #7f8c8d;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg); color: var(--text); padding: 2rem; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .header h1 { color: var(--primary); }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .kpi-card { background: var(--surface); padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .kpi-title { font-size: 0.9rem; color: var(--muted); text-transform: uppercase; margin-bottom: 0.5rem; }
+        .kpi-value { font-size: 2rem; font-weight: bold; color: var(--primary); }
+        .kpi-value.danger { color: var(--danger); }
+        .charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+        .chart-container { background: var(--surface); padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .table-container { background: var(--surface); padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #eee; }
+        th { color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 0.85rem; }
+        .status { padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.85rem; font-weight: bold; }
+        .status.approved { background: #e8f8f5; color: var(--success); }
+        .status.pending { background: #fef9e7; color: #f1c40f; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Financial Expense Dashboard</h1>
+        <p style="color: var(--muted);">FY 2026 Q1-Q2</p>
+    </div>
+
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-title">Total Budget</div>
+            <div class="kpi-value">$100,000</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-title">Total Approved Spend</div>
+            <div class="kpi-value" id="kpi-spend">$0</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-title">Remaining Budget</div>
+            <div class="kpi-value" id="kpi-remaining">$0</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-title">Burn Rate</div>
+            <div class="kpi-value" id="kpi-burn">0%</div>
+        </div>
+    </div>
+
+    <div class="charts-grid">
+        <div class="chart-container">
+            <h3 style="margin-bottom: 1rem; color: var(--primary);">Monthly Spend Trend</h3>
+            <canvas id="trendChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <h3 style="margin-bottom: 1rem; color: var(--primary);">Spend by Department</h3>
+            <canvas id="deptChart"></canvas>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <h3 style="margin-bottom: 1rem; color: var(--primary);">Recent Transactions</h3>
+        <table id="txnTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Date</th>
+                    <th>Department</th>
+                    <th>Category</th>
+                    <th>Vendor</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Populated by JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Embedded Mock Data for seamless local running
+        const transactions = [
+            {"transaction_id": "TRX-001", "date": "2026-01-15", "department": "Marketing", "category": "Advertising", "amount": 12000.00, "vendor": "Google Ads", "status": "Approved"},
+            {"transaction_id": "TRX-002", "date": "2026-01-20", "department": "IT", "category": "Software", "amount": 4500.00, "vendor": "AWS", "status": "Approved"},
+            {"transaction_id": "TRX-003", "date": "2026-02-05", "department": "Sales", "category": "Travel", "amount": 3200.00, "vendor": "Delta Airlines", "status": "Approved"},
+            {"transaction_id": "TRX-004", "date": "2026-02-18", "department": "Marketing", "category": "Software", "amount": 1500.00, "vendor": "HubSpot", "status": "Approved"},
+            {"transaction_id": "TRX-005", "date": "2026-03-10", "department": "HR", "category": "Events", "amount": 5000.00, "vendor": "Local Catering", "status": "Approved"},
+            {"transaction_id": "TRX-006", "date": "2026-03-22", "department": "IT", "category": "Hardware", "amount": 8500.00, "vendor": "Dell", "status": "Pending"},
+            {"transaction_id": "TRX-007", "date": "2026-04-05", "department": "Sales", "category": "Meals", "amount": 800.00, "vendor": "Steakhouse", "status": "Approved"},
+            {"transaction_id": "TRX-008", "date": "2026-04-12", "department": "Marketing", "category": "Advertising", "amount": 15000.00, "vendor": "LinkedIn Ads", "status": "Approved"},
+            {"transaction_id": "TRX-009", "date": "2026-05-02", "department": "IT", "category": "Software", "amount": 1200.00, "vendor": "Atlassian", "status": "Approved"},
+            {"transaction_id": "TRX-010", "date": "2026-05-08", "department": "HR", "category": "Software", "amount": 900.00, "vendor": "Workday", "status": "Approved"}
+        ];
+
+        const totalBudget = 100000;
+        
+        // Calculate KPIs
+        const approvedTxns = transactions.filter(t => t.status === 'Approved');
+        const totalSpend = approvedTxns.reduce((sum, t) => sum + t.amount, 0);
+        const remaining = totalBudget - totalSpend;
+        const burnRate = ((totalSpend / totalBudget) * 100).toFixed(1);
+
+        document.getElementById('kpi-spend').innerText = '$' + totalSpend.toLocaleString();
+        document.getElementById('kpi-remaining').innerText = '$' + remaining.toLocaleString();
+        
+        const burnEl = document.getElementById('kpi-burn');
+        burnEl.innerText = burnRate + '%';
+        if(burnRate > 90) burnEl.classList.add('danger');
+
+        // Populate Table
+        const tbody = document.querySelector('#txnTable tbody');
+        transactions.forEach(t => {
+            const tr = document.createElement('tr');
+            const statusClass = t.status.toLowerCase();
+            tr.innerHTML = `
+                <td>${t.transaction_id}</td>
+                <td>${t.date}</td>
+                <td>${t.department}</td>
+                <td>${t.category}</td>
+                <td>${t.vendor}</td>
+                <td>$${t.amount.toLocaleString()}</td>
+                <td><span class="status ${statusClass}">${t.status}</span></td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // Prepare Chart Data
+        const deptSpend = {};
+        const monthSpend = { "Jan": 0, "Feb": 0, "Mar": 0, "Apr": 0, "May": 0 };
+        
+        approvedTxns.forEach(t => {
+            deptSpend[t.department] = (deptSpend[t.department] || 0) + t.amount;
+            const month = new Date(t.date).toLocaleString('default', { month: 'short' });
+            if(monthSpend[month] !== undefined) monthSpend[month] += t.amount;
+        });
+
+        // Charts
+        new Chart(document.getElementById('deptChart'), {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(deptSpend),
+                datasets: [{
+                    data: Object.values(deptSpend),
+                    backgroundColor: ['#3498db', '#9b59b6', '#e67e22', '#1abc9c']
+                }]
+            }
+        });
+
+        new Chart(document.getElementById('trendChart'), {
+            type: 'bar',
+            data: {
+                labels: Object.keys(monthSpend),
+                datasets: [{
+                    label: 'Spend ($)',
+                    data: Object.values(monthSpend),
+                    backgroundColor: '#3498db',
+                    borderRadius: 4
+                }]
+            },
+            options: { scales: { y: { beginAtZero: true } } }
+        });
+    </script>
+</body>
+</html>
